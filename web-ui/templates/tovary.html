@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card">
+    <div class="head">
+      <h1>Товар • анализ</h1>
+      <div class="muted mono" id="p_upd">—</div>
+    </div>
+
+    <div class="controls">
+      <label>Товар</label>
+      <select id="p_product"></select>
+
+      <label>Действие</label>
+      <select id="p_activity">
+        <option value="all">все</option>
+        <option value="product_viewed">просмотр</option>
+        <option value="add_to_cart">в корзину</option>
+        <option value="checkout_completed">покупка</option>
+        <option value="order_refunded">возврат</option>
+      </select>
+
+      <label>Окно (мин)</label>
+      <input id="p_minutes" type="number" min="5" max="4320" value="180"/>
+
+      <button class="btn" onclick="loadTovar()">Показать</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="k">События</div><div class="v" id="p_total">—</div></div>
+      <div class="kpi"><div class="k">Выручка (оплачено)</div><div class="v" id="p_rev">—</div></div>
+      <div class="kpi"><div class="k">Топ пользователь (события)</div><div class="v" id="p_top_e">—</div></div>
+      <div class="kpi"><div class="k">Топ пользователь (выручка)</div><div class="v" id="p_top_r">—</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="head"><h2>Действия по типам</h2><div class="muted">сколько раз</div></div>
+    <div class="chart-container medium">
+      <canvas id="c_actions"></canvas>
+    </div>
+
+    <div class="head"><h2>Активность по минутам</h2><div class="muted">count</div></div>
+    <div class="chart-container large">
+      <canvas id="c_ts"></canvas>
+    </div>
+
+    <div class="head"><h2>Выручка по минутам</h2><div class="muted">sum(revenue)</div></div>
+    <div class="chart-container large">
+      <canvas id="c_rev_ts"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="grid-column: 1 / -1">
+    <div class="head"><h2>Топ‑10 пользователей</h2><div class="muted">события / выручка</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>user_id</th><th>события</th><th>выручка</th></tr>
+        </thead>
+        <tbody id="u_rows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

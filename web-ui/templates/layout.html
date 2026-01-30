@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ app_name }}</title>
+  <link rel="stylesheet" href="/static/laconic.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/static/panel.js" defer></script>	
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="badge">
+        <div class="badge-top">PawFund</div>
+        <div class="badge-sub">магазин + помощь приютам</div>
+      </div>
+
+      <nav class="menu">
+        <a class="m" href="/">Обзор</a>
+        <a class="m" href="/voronka">Воронка</a>
+        <a class="m" href="/tovary">Товар • анализ</a>
+        <a class="m" href="/potok">Поток событий</a>
+      </nav>
+
+      <div class="hint">
+        <div class="hint-h">Подсказка</div>
+        <div class="hint-t">
+          Выбирай товар и действие, чтобы увидеть, как с ним взаимодействуют: просмотры, корзина, покупки, возвраты.
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="mast">
+        <div>
+          <div class="mast-title">{{ app_name }}</div>
+          <div class="mast-sub">Продажи, скидки, доставка, возвраты, донаты и “корм для приюта”.</div>
+        </div>
+        <div class="chip mono" id="clock">—</div>
+      </header>
+
+      <section class="page">
+        {% block content %}{% endblock %}
+      </section>
+
+      <footer class="footer">
+        <span class="muted">Локальная E2E-демонстрация • UI сделан вручную</span>
+      </footer>
+
+      <script src="/static/panel.js"></script>
+    </main>
+  </div>
+</body>
+</html>

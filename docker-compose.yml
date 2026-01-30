@@ -1,0 +1,110 @@
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.5.3
+    container_name: pawfund-kafka
+    ports:
+      - "29092:29092"
+    environment:
+      # ---- KRaft mode (no Zookeeper) ----
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      # listeners
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      # single node
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+      # required for single-node KRaft
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    container_name: pawfund-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - ES_JAVA_OPTS=-Xms384m -Xmx384m
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+
+  vector:
+    image: timberio/vector:0.39.0-debian
+    container_name: pawfund-vector
+    depends_on:
+      kafka:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./vector/vector.yaml:/etc/vector/vector.yaml:ro
+      - vector_data:/var/lib/vector
+    command: ["--config", "/etc/vector/vector.yaml"]
+    ports:
+      - "8686:8686"
+
+  generator:
+    build: ./generator
+    container_name: pawfund-generator
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      PYTHONUNBUFFERED: "1"
+      KAFKA_BOOTSTRAP: kafka:9092
+      KAFKA_TOPIC: events.pawfund
+      SERVICE_NAME: pawfund-generator
+      ENV: local
+      BASE_RPS: "18"
+      SCENARIO: normal
+      P_ADD_TO_CART: "0.25"
+      P_PURCHASE: "0.07"
+      P_DONATION: "0.02"
+      P_CHARITY_ITEM: "0.015"
+      P_COUPON: "0.12"
+      P_DELIVERY: "0.80"
+      P_REFUND: "0.012"
+
+  web-ui:
+    build: ./web-ui
+    container_name: pawfund-web-ui
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      PYTHONUNBUFFERED: "1"
+      APP_NAME: "PawFund • Shop & Shelter Dashboard"
+      ELASTIC_URL: http://elasticsearch:9200
+      ELASTIC_INDEX: pawfund-events-*
+      LLM_ENABLED: "false"
+    ports:
+      - "8080:8080"
+
+volumes:
+  kafka_data:
+  es_data:
+  vector_data:

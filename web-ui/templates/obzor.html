@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card">
+    <div class="head">
+      <h1>Обзор</h1>
+      <div class="muted mono" id="o_upd">—</div>
+    </div>
+
+    <div class="controls">
+      <label>Окно (мин)</label>
+      <input id="o_minutes" type="number" min="5" max="720" value="60"/>
+      <button class="btn" onclick="loadObzor()">Обновить</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="k">События</div><div class="v" id="k_total">—</div></div>
+      <div class="kpi"><div class="k">Просмотры</div><div class="v" id="k_views">—</div></div>
+      <div class="kpi"><div class="k">ATC %</div><div class="v" id="k_atc">—</div></div>
+      <div class="kpi"><div class="k">Конверсия %</div><div class="v" id="k_cr">—</div></div>
+
+      <div class="kpi"><div class="k">Выручка (магазин)</div><div class="v" id="k_rev">—</div></div>
+      <div class="kpi"><div class="k">Средний чек</div><div class="v" id="k_aov">—</div></div>
+      <div class="kpi"><div class="k">Возвраты</div><div class="v" id="k_ref">—</div></div>
+      <div class="kpi"><div class="k">Чистая выручка</div><div class="v" id="k_net">—</div></div>
+
+      <div class="kpi"><div class="k">Донаты</div><div class="v" id="k_don">—</div></div>
+      <div class="kpi"><div class="k">Корм для приюта</div><div class="v" id="k_char">—</div></div>
+      <div class="kpi"><div class="k">Сбой оплаты %</div><div class="v" id="k_fail_rate">—</div></div>
+      <div class="kpi"><div class="k">Ошибки донатов</div><div class="v" id="k_fail_don">—</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="head">
+      <h2>События по минутам</h2>
+      <div class="muted">временной ряд</div>
+    </div>
+    <div class="chart-container large">
+      <canvas id="c_events"></canvas>
+    </div>
+
+    <div class="head">
+      <h2>Структура выручки</h2>
+      <div class="muted">магазин / корм / донаты</div>
+    </div>
+    <div class="chart-container medium">
+      <canvas id="c_mix"></canvas>
+    </div>
+
+    <div class="head">
+      <h2>События по типам</h2>
+      <div class="muted">top event_name</div>
+    </div>
+    <div class="chart-container large">
+      <canvas id="c_types"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}

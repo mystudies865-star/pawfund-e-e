@@ -1,0 +1,58 @@
+api:
+  enabled: true
+  address: 0.0.0.0:8686
+
+data_dir: /var/lib/vector
+
+sources:
+  kafka_events:
+    type: kafka
+    bootstrap_servers: "kafka:9092"
+    topics: ["events.pawfund"]
+    group_id: "vector-events-pawfund"
+    decoding:
+      codec: json
+
+transforms:
+  normalize:
+    type: remap
+    inputs: [kafka_events]
+    source: |
+      # ts -> @timestamp
+      if exists(.ts) && is_string(.ts) {
+        ."@timestamp" = parse_timestamp!(.ts, "%+")
+        del(.ts)
+      } else {
+        ."@timestamp" = now()
+      }
+
+      if !exists(.service) || is_null(.service) { .service = "pawfund-generator" }
+      if !exists(.env) || is_null(.env) { .env = "local" }
+      if !exists(.event_name) || is_null(.event_name) { .event_name = "unknown" }
+
+      .user_id = to_int(.user_id) ?? null
+      .quantity = to_int(.quantity) ?? null
+      .product_price = to_float(.product_price) ?? null
+      .revenue = to_float(.revenue) ?? null
+      .gross = to_float(.gross) ?? null
+      .discount_amount = to_float(.discount_amount) ?? null
+      .delivery_price = to_float(.delivery_price) ?? null
+      .refund_amount = to_float(.refund_amount) ?? null
+      .amount = to_float(.amount) ?? null
+
+      .is_charity = (.event_name == "donation_created" || .event_name == "charity_item_purchased")
+      .event = { "dataset": "pawfund.merchant_analytics" }
+
+sinks:
+  elasticsearch:
+    type: elasticsearch
+    inputs: [normalize]
+    endpoints:
+      - "http://elasticsearch:9200"
+    mode: bulk
+    bulk:
+      action: index
+      index: "pawfund-events-%Y.%m.%d"
+    request:
+      retry_attempts: 10
+      retry_max_duration_secs: 60

@@ -1,0 +1,16 @@
+﻿# OS / editor
+.DS_Store
+*.swp
+*.tmp
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Optional logs
+*.log

@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+  <div class="head">
+    <h1>Воронка</h1>
+    <div class="muted mono" id="f_upd">—</div>
+  </div>
+
+  <div class="controls">
+    <label>Окно (мин)</label>
+    <input id="f_minutes" type="number" min="5" max="720" value="120"/>
+    <button class="btn" onclick="loadVoronka()">Обновить</button>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">Просмотры</div><div class="v" id="f_views">—</div></div>
+    <div class="kpi"><div class="k">Корзина</div><div class="v" id="f_atc">—</div></div>
+    <div class="kpi"><div class="k">Купон</div><div class="v" id="f_coupon">—</div></div>
+    <div class="kpi"><div class="k">Доставка</div><div class="v" id="f_delivery">—</div></div>
+
+    <div class="kpi"><div class="k">Оплачено</div><div class="v" id="f_paid">—</div></div>
+    <div class="kpi"><div class="k">Ошибка оплаты</div><div class="v" id="f_failed">—</div></div>
+    <div class="kpi"><div class="k">Возвраты</div><div class="v" id="f_ref">—</div></div>
+    <div class="kpi"><div class="k">CR / Fail / Refund</div><div class="v" id="f_rates">—</div></div>
+  </div>
+
+  <div class="card inner">
+    <div class="head">
+      <h2>График воронки</h2>
+      <div class="muted">количество событий</div>
+    </div>
+    <div class="chart-container large">
+      <canvas id="c_funnel"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
